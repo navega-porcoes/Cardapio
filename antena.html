@@ -3,93 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Antena - Navega Porções</title>
+    <title>Antena v2.6.4 - Navega Porções</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <style>
-        .card { background: white; border-radius: 12px; padding: 15px; border: 1px solid #e5e7eb; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .input-navega { width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 10px; font-weight: bold; }
-        .status-on { background-color: #22c55e; color: white; }
-        .status-off { background-color: #ef4444; color: white; }
-        .aba-btn { padding: 12px 10px; font-size: 10px; font-weight: 900; text-transform: uppercase; border-bottom: 3px solid transparent; color: #9ca3af; transition: 0.3s; flex-shrink: 0; }
-        .aba-ativa { border-bottom: 3px solid #1e40af; color: #1e40af; background: #eff6ff; }
+        .card { background: white; border-radius: 16px; padding: 20px; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .input-navega { width: 100%; border: 2px solid #e5e7eb; border-radius: 12px; padding: 12px; font-weight: bold; transition: 0.3s; color: #1e40af !important; }
+        .input-navega:focus { border-color: #1e40af; outline: none; }
+        .status-on { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; border: none; }
+        .status-off { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; }
+        .aba-btn { padding: 14px 10px; font-size: 10px; font-weight: 900; text-transform: uppercase; border-bottom: 4px solid transparent; color: #9ca3af; transition: 0.3s; flex-shrink: 0; }
+        .aba-ativa { border-bottom: 4px solid #1e40af; color: #1e40af; background: #eff6ff; }
         .secao-aba { display: none; }
         .secao-ativa { display: block; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        .btn-esgotar { font-size: 9px; padding: 8px 12px; border-radius: 8px; font-weight: 900; text-transform: uppercase; }
+        .divisor-categoria { background: #eff6ff; color: #1e40af; font-size: 11px; font-weight: 900; padding: 10px 12px; border-radius: 12px; text-transform: uppercase; margin-top: 20px; margin-bottom: 10px; border-left: 5px solid #1e40af; display: flex; justify-content: space-between; align-items: center; }
+        .btn-add { background: #1e40af; color: white; width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .btn-add:active { transform: scale(0.9); }
     </style>
 </head>
-<body class="bg-gray-100 pb-28 font-sans">
+<body class="bg-gray-50 pb-32 font-sans">
 
-    <header class="bg-blue-800 p-4 text-white shadow-lg">
-        <h1 class="text-xl font-black uppercase italic">📡 Painel Antena v2.0</h1>
+    <header class="bg-blue-800 p-5 text-white shadow-xl text-center">
+        <p class="text-[10px] font-bold opacity-80 mb-1 uppercase tracking-widest text-white">Gestão Total</p>
+        <h1 class="text-2xl font-black uppercase italic tracking-tighter text-white">📡 PAINEL ANTENA V2.6.4</h1>
     </header>
 
-    <div class="sticky top-0 bg-white shadow-md z-40 flex overflow-x-auto no-scrollbar border-b">
-        <button onclick="abrirAba('aba-loja')" id="btn-aba-loja" class="aba-btn flex-1 aba-ativa">Loja</button>
-        <button onclick="abrirAba('aba-tempo')" id="btn-aba-tempo" class="aba-btn flex-1">Tempos</button>
-        <button onclick="abrirAba('aba-precos')" id="btn-aba-precos" class="aba-btn flex-1">Preços</button>
-        <button onclick="abrirAba('aba-texto')" id="btn-aba-texto" class="aba-btn flex-1">Cardápio</button>
-        <button onclick="abrirAba('aba-taxas')" id="btn-aba-taxas" class="aba-btn flex-1">Taxas</button>
-        <button onclick="abrirAba('aba-info')" id="btn-aba-info" class="aba-btn flex-1">WhatsApp</button>
-    </div>
+    <nav class="sticky top-0 bg-white shadow-md z-40 flex overflow-x-auto no-scrollbar border-b">
+        <button onclick="abrirAba('aba-loja')" id="btn-aba-loja" class="aba-btn flex-1 aba-ativa">🏪 Loja</button>
+        <button onclick="abrirAba('aba-tempo')" id="btn-aba-tempo" class="aba-btn flex-1">⏱️ Tempos</button>
+        <button onclick="abrirAba('aba-precos')" id="btn-aba-precos" class="aba-btn flex-1">💰 Preços</button>
+        <button onclick="abrirAba('aba-texto')" id="btn-aba-texto" class="aba-btn flex-1">📝 Menu</button>
+        <button onclick="abrirAba('aba-taxas')" id="btn-aba-taxas" class="aba-btn flex-1">🛵 Taxas</button>
+        <button onclick="abrirAba('aba-info')" id="btn-aba-info" class="aba-btn flex-1">💬 Whats</button>
+    </nav>
 
-    <div class="p-4 space-y-4">
+    <div class="p-4 max-w-md mx-auto space-y-6">
         <section id="aba-loja" class="secao-aba secao-ativa">
             <div class="card text-center">
-                <h2 class="font-black text-sm uppercase mb-3 text-blue-900 italic">Status da Loja</h2>
-                <button id="btn-status" onclick="alternarLoja()" class="w-full py-8 rounded-xl font-black text-xl uppercase italic shadow-md status-off">FECHADA</button>
+                <span class="text-[10px] font-black uppercase text-blue-900 opacity-60 tracking-widest italic">Status da Operação</span>
+                <button id="btn-status" onclick="alternarLoja()" class="w-full mt-2 py-10 rounded-2xl font-black text-2xl uppercase italic shadow-lg transition status-off">CARREGANDO...</button>
             </div>
         </section>
 
         <section id="aba-tempo" class="secao-aba">
-            <div class="card space-y-4">
-                <h2 class="font-black text-sm uppercase text-blue-900 italic">Tempos de Espera</h2>
-                <div><label class="block text-[10px] font-black uppercase text-gray-400 italic">⏱️ Preparo</label><input type="text" id="preparo" class="input-navega" value="30-45 min"></div>
-                <div><label class="block text-[10px] font-black uppercase text-gray-400 italic">🛵 Entrega</label><input type="text" id="entrega" class="input-navega" value="20 min"></div>
+            <div class="card space-y-5">
+                <h2 class="font-black text-sm uppercase text-blue-900 italic text-center border-b pb-2">Prazos de Entrega</h2>
+                <div><label class="block text-[10px] font-black uppercase text-gray-400 italic mb-1">⏱️ Preparo</label><input type="text" id="preparo" class="input-navega" placeholder="Ex: 30-45 min"></div>
+                <div><label class="block text-[10px] font-black uppercase text-gray-400 italic mb-1">🛵 Entrega</label><input type="text" id="entrega" class="input-navega" placeholder="Ex: 20 min"></div>
             </div>
         </section>
 
         <section id="aba-precos" class="secao-aba">
             <div class="card">
-                <h2 class="font-black text-sm uppercase mb-4 text-blue-900 italic">Preços (R$)</h2>
-                <div id="lista-precos" class="space-y-3"></div>
+                <h2 class="font-black text-sm uppercase mb-2 text-blue-900 italic text-center border-b pb-2">Itens e Valores</h2>
+                <div id="lista-precos" class="space-y-1"></div>
             </div>
         </section>
 
         <section id="aba-texto" class="secao-aba">
             <div class="card space-y-4">
-                <h2 class="font-black text-sm uppercase text-blue-900 italic">Descrições do Cardápio</h2>
+                <h2 class="font-black text-sm uppercase text-blue-900 italic text-center border-b pb-2">Descrições do Menu</h2>
                 <div id="lista-descricoes" class="space-y-6"></div>
             </div>
         </section>
 
         <section id="aba-taxas" class="secao-aba">
             <div class="card">
-                <h2 class="font-black text-sm uppercase mb-4 text-blue-900 italic">Taxas de Entrega</h2>
-                <div class="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                    <label class="block text-[10px] font-black uppercase text-blue-400 mb-1">📍 Taxa Padrão</label>
-                    <input type="number" step="0.01" id="taxaPadrao" class="input-navega border-blue-200" value="7.00">
+                <div class="flex justify-between items-center mb-4 border-b pb-2">
+                    <h2 class="font-black text-sm uppercase text-blue-900 italic">Frete</h2>
+                    <button onclick="adicionarTaxa()" class="bg-blue-600 text-white text-[10px] px-4 py-2 rounded-xl font-black uppercase">+ NOVO</button>
                 </div>
-                <div class="flex gap-2 mb-4">
-                    <input type="text" id="novo-bairro" placeholder="Bairro" class="input-navega text-xs flex-1">
-                    <input type="number" id="valor-bairro" placeholder="R$" class="input-navega text-xs w-20">
-                    <button onclick="adicionarTaxa()" class="bg-blue-600 text-white px-4 rounded-lg font-black">+</button>
-                </div>
-                <div id="lista-taxas" class="space-y-1"></div>
+                <div id="lista-taxas" class="space-y-3"></div>
             </div>
         </section>
 
         <section id="aba-info" class="secao-aba">
-            <div class="card">
-                <h2 class="font-black text-sm uppercase mb-4 text-blue-900 italic">WhatsApp de Atendimento</h2>
-                <input type="text" id="whatsapp" class="input-navega" value="5543996649273">
+            <div class="card bg-green-50 border-green-200">
+                <div class="flex flex-col items-center py-2">
+                    <h2 class="font-black text-base uppercase text-green-800 italic">WhatsApp de Pedidos</h2>
+                    <input type="text" id="whatsapp" class="input-navega text-center text-lg border-2 border-green-200 mt-4" placeholder="5547999999999">
+                    <p class="mt-2 text-[9px] text-gray-400 font-bold uppercase italic">Use o formato: 55 + DDD + Número</p>
+                </div>
             </div>
         </section>
     </div>
 
-    <div class="fixed bottom-0 left-0 w-full p-4 bg-white border-t z-50">
-        <button onclick="salvarNoFirebase()" id="btn-salvar" class="w-full bg-blue-800 text-white py-4 rounded-xl font-black uppercase italic shadow-lg">💾 SALVAR NO GOOGLE</button>
+    <div class="fixed bottom-0 left-0 w-full p-4 bg-white/80 backdrop-blur-md border-t z-50">
+        <button onclick="salvarNoFirebase()" id="btn-salvar" class="w-full bg-blue-800 text-white py-5 rounded-2xl font-black text-lg uppercase italic shadow-2xl flex items-center justify-center gap-3">
+            <span>💾 SALVAR TUDO</span>
+        </button>
     </div>
 
     <script>
@@ -106,147 +111,96 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let dadosLoja = {
-            config: { aberta: false, preparo: '30-45 min', entrega: '20 min', whatsapp: '5543996649273', taxaPadrao: 7.00 },
-            produtos: [
-                { id: 1, nome: 'Batata Tradicional P', preco: 35.00 },
-                { id: 2, nome: 'Porção P 1', preco: 43.99 },
-                { id: 3, nome: 'Porção P 2', preco: 43.99 },
-                { id: 4, nome: 'Porção P 3', preco: 43.99 },
-                { id: 5, nome: 'Porção P 4', preco: 44.99 },
-                { id: 6, nome: 'Porção P 5', preco: 43.99 },
-                { id: 7, nome: 'Porção P 6', preco: 49.99 },
-                { id: 8, nome: 'Porção P 7', preco: 48.99 },
-                { id: 10, nome: 'Batata Tradicional M', preco: 45.00 },
-                { id: 11, nome: 'Porção M 1', preco: 64.99 },
-                { id: 12, nome: 'Porção M 2', preco: 64.99 },
-                { id: 13, nome: 'Porção M 3', preco: 64.99 },
-                { id: 14, nome: 'Porção M 4', preco: 65.99 },
-                { id: 15, nome: 'Porção M 5', preco: 64.99 },
-                { id: 20, nome: 'Batata Tradicional G', preco: 55.00 },
-                { id: 21, nome: 'Porção G 1', preco: 74.99 },
-                { id: 22, nome: 'Porção G 2', preco: 74.99 },
-                { id: 23, nome: 'Porção G 3', preco: 74.99 },
-                { id: 24, nome: 'Porção G 4', preco: 75.99 },
-                { id: 25, nome: 'Porção G 5', preco: 75.99 }
-            ],
-            descricoes: {
-                1: "Batata, cheddar, bacon, Catupiry + molho verde",
-                2: "Batata bacon queijo cheddar Catupiry linguiça toscana bife acebolado + Calabresa acebolada e molho verde para acompanhar.",
-                3: "Batata bacon queijo cheddar Catupiry isca de frango linguiça toscana + bife acebolado",
-                4: "Batata bacon queijo cheddar Catupiry calabresa acebolada isca de frango e linguiça toscana",
-                5: "Batata bacon queijo cheddar Catupiry isca de frango calabresa acebolada+bife acebolado e molho verde para acompanhar.",
-                6: "Batata bacon queijo cheddar Catupiry isca de frango linguiça toscana bife acebolado e calabresa acebolada + molho verde para acompanhar",
-                7: "Batata bacon queijo cheddar Catupiry+ bife acebolado e Delicioso molho verde para acompanhar",
-                8: "Batata bacon queijo cheddar +mais calabresa acebolada e molho verde para acompanhar.",
-                10: "Batata, cheddar, bacon, Catupiry + molho verde",
-                11: "Batata bacon queijo cheddar Catupiry linguiça toscana bife acebolado + Calabresa acebolada e molho verde para acompanhar.",
-                12: "Batata bacon queijo cheddar Catupiry isca de frango linguiça toscana + bife acebolado",
-                13: "Batata bacon queijo cheddar Catupiry calabresa acebolada isca de frango e linguiça toscana",
-                14: "Batata bacon queijo cheddar Catupiry isca de frango calabresa acebolada+bife acebolado e molho verde para acompanhar.",
-                15: "Batata bacon queijo cheddar Catupiry isca de frango linguiça toscana bife acebolado e calabresa acebolada + molho verde para acompanhar",
-                20: "Batata, cheddar, bacon, Catupiry + molho verde",
-                21: "Batata bacon queijo cheddar Catupiry linguiça toscana bife acebolado + Calabresa acebolada e molho verde para acompanhar.",
-                22: "Batata bacon queijo cheddar Catupiry isca de frango linguiça toscana + bife acebolado",
-                23: "Batata bacon queijo cheddar Catupiry calabresa acebolada isca de frango e linguiça toscana",
-                24: "Batata bacon queijo cheddar Catupiry isca de frango calabresa acebolada+bife acebolado e molho verde para acompanhar.",
-                25: "Batata bacon queijo cheddar Catupiry isca de frango linguiça toscana bife acebolado e calabresa acebolada + molho verde para acompanhar"
-            },
-            taxas: [
-                {bairro: "GRAVATÁ", valor: 7.00},
-                {bairro: "CENTRO", valor: 0.00},
-                {bairro: "MEIA PRAIA", valor: 7.00},
-                {bairro: "SÃO DOMINGOS", valor: 7.00}
-            ]
-        };
+        let dadosLoja = { config: {}, produtos: [], descricoes: {}, taxas: [] };
 
         function carregarInterface() {
             const btn = document.getElementById('btn-status');
             btn.innerText = dadosLoja.config.aberta ? "LOJA ABERTA ✅" : "LOJA FECHADA ❌";
-            btn.className = "w-full py-8 rounded-xl font-black text-xl uppercase italic shadow-md " + (dadosLoja.config.aberta ? "status-on" : "status-off");
+            btn.className = "w-full py-10 rounded-2xl font-black text-2xl uppercase italic shadow-lg transition " + (dadosLoja.config.aberta ? "status-on" : "status-off");
             
-            document.getElementById('preparo').value = dadosLoja.config.preparo;
-            document.getElementById('entrega').value = dadosLoja.config.entrega;
-            document.getElementById('whatsapp').value = dadosLoja.config.whatsapp;
-            document.getElementById('taxaPadrao').value = parseFloat(dadosLoja.config.taxaPadrao).toFixed(2);
+            document.getElementById('preparo').value = dadosLoja.config.preparo || '';
+            document.getElementById('entrega').value = dadosLoja.config.entrega || '';
+            document.getElementById('whatsapp').value = dadosLoja.config.whatsapp || '';
 
             const containerPrecos = document.getElementById('lista-precos');
             containerPrecos.innerHTML = "";
             const containerDesc = document.getElementById('lista-descricoes');
             containerDesc.innerHTML = "";
 
-            dadosLoja.produtos.forEach(p => {
-                containerPrecos.innerHTML += `<div class="flex justify-between items-center border-b pb-2"><span class="text-[10px] font-black text-gray-400 uppercase">${p.nome}</span><input type="number" step="0.01" data-id="${p.id}" value="${parseFloat(p.preco).toFixed(2)}" class="preco-input border-2 border-blue-50 rounded px-2 py-1 w-24 text-right font-black text-blue-700"></div>`;
-                const descVal = dadosLoja.descricoes[p.id] || "";
-                containerDesc.innerHTML += `<div class="border-l-4 border-blue-600 pl-3 pb-2"><label class="block text-[10px] font-black uppercase text-blue-900 mb-1 italic">${p.nome}</label><textarea data-id="${p.id}" class="desc-input input-navega text-[11px] h-16 font-normal">${descVal}</textarea></div>`;
+            const categorias = [
+                { nome: "🍱 Porções P", min: 1, max: 9 },
+                { nome: "🍱 Porções M", min: 10, max: 19 },
+                { nome: "🍱 Porções G", min: 20, max: 99 },
+                { nome: "🥤 Bebidas", min: 100, max: 999 }
+            ];
+
+            categorias.forEach(cat => {
+                containerPrecos.innerHTML += `<div class="divisor-categoria"><span>${cat.nome}</span><button onclick="adicionarProduto(${cat.min}, ${cat.max})" class="btn-add">+</button></div>`;
+                const produtosCat = (dadosLoja.produtos || []).filter(p => p.id >= cat.min && p.id <= cat.max);
+                
+                produtosCat.forEach(p => {
+                    const isEsg = p.esgotado;
+                    containerPrecos.innerHTML += `
+                        <div class="flex justify-between items-center border-b border-gray-50 py-3">
+                            <input type="text" value="${p.nome}" onchange="atualizarNome(${p.id}, this.value)" class="text-[10px] font-black w-32 bg-transparent ${isEsg ? 'text-gray-300 line-through' : 'text-gray-700'} uppercase italic outline-none">
+                            <div class="flex items-center gap-1">
+                                <div class="relative w-20">
+                                    <span class="absolute left-1 top-1/2 -translate-y-1/2 text-[8px] font-bold text-blue-300">R$</span>
+                                    <input type="number" step="0.01" value="${parseFloat(p.preco || 0).toFixed(2)}" onchange="atualizarPreco(${p.id}, this.value)" class="border-2 border-gray-100 ${isEsg ? 'text-gray-300' : 'text-blue-800'} rounded-xl pl-5 pr-1 py-2 w-full text-right font-black text-xs outline-none">
+                                </div>
+                                <button onclick="alternarEstoque(${p.id})" class="btn-esgotar ${isEsg ? 'bg-green-500' : 'bg-red-500'} text-white">${isEsg ? 'Ativar' : 'Esgotar'}</button>
+                                <button onclick="removerProduto(${p.id})" class="text-red-200 px-1 font-black text-lg">×</button>
+                            </div>
+                        </div>`;
+                    
+                    if(p.id < 100) {
+                        const d = (dadosLoja.descricoes && dadosLoja.descricoes[p.id]) || "";
+                        containerDesc.innerHTML += `<div class="border-l-4 border-blue-600 pl-4 pb-2"><label class="block text-[9px] font-black uppercase text-blue-900 mb-1 italic opacity-70">${p.nome}</label><textarea onchange="atualizarDesc(${p.id}, this.value)" class="input-navega text-[11px] h-16 font-medium" placeholder="O que vem nesta porção?">${d}</textarea></div>`;
+                    }
+                });
             });
             renderizarTaxas();
         }
 
-        function alternarLoja() {
-            dadosLoja.config.aberta = !dadosLoja.config.aberta;
+        function adicionarProduto(min, max) {
+            if(!dadosLoja.produtos) dadosLoja.produtos = [];
+            const ids = dadosLoja.produtos.map(p => p.id);
+            let nId = min;
+            while(ids.includes(nId) && nId <= max) { nId++; }
+            if(nId > max) return alert("Limite atingido!");
+            dadosLoja.produtos.push({ id: nId, nome: "NOVO ITEM", preco: 0.00, esgotado: false });
+            if(!dadosLoja.descricoes) dadosLoja.descricoes = {};
+            dadosLoja.descricoes[nId] = ""; 
+            dadosLoja.produtos.sort((a,b) => a.id - b.id);
             carregarInterface();
         }
 
+        function removerProduto(id) { if(confirm("Remover?")) { dadosLoja.produtos = dadosLoja.produtos.filter(p => p.id !== id); delete dadosLoja.descricoes[id]; carregarInterface(); } }
+        function atualizarNome(id, v) { const p = dadosLoja.produtos.find(x => x.id === id); if(p) p.nome = v.toUpperCase(); carregarInterface(); }
+        function atualizarPreco(id, v) { const p = dadosLoja.produtos.find(x => x.id === id); if(p) p.preco = parseFloat(v) || 0; }
+        function atualizarDesc(id, v) { if(!dadosLoja.descricoes) dadosLoja.descricoes = {}; dadosLoja.descricoes[id] = v; }
+        function alternarEstoque(id) { const p = dadosLoja.produtos.find(x => x.id === id); if(p) p.esgotado = !p.esgotado; carregarInterface(); }
+        function alternarLoja() { dadosLoja.config.aberta = !dadosLoja.config.aberta; carregarInterface(); }
+        function abrirAba(id) { document.querySelectorAll('.secao-aba').forEach(s => s.classList.remove('secao-ativa')); document.querySelectorAll('.aba-btn').forEach(b => b.classList.remove('aba-ativa')); document.getElementById(id).classList.add('secao-ativa'); document.getElementById('btn-' + id).classList.add('aba-ativa'); }
+        
         function renderizarTaxas() {
-            const div = document.getElementById('lista-taxas');
-            div.innerHTML = "";
+            const div = document.getElementById('lista-taxas'); div.innerHTML = "";
             (dadosLoja.taxas || []).forEach((t, i) => {
-                div.innerHTML += `<div class="flex justify-between items-center bg-white p-3 border-b border-gray-100"><span class="text-[11px] font-black uppercase italic">${t.bairro} - R$ ${parseFloat(t.valor).toFixed(2)}</span><button onclick="removerTaxa(${i})" class="text-red-500 font-black px-2 text-xl">X</button></div>`;
+                div.innerHTML += `<div class="flex gap-2 items-center bg-gray-50 p-3 rounded-2xl border border-gray-100"><input type="text" value="${t.bairro}" onchange="dadosLoja.taxas[${i}].bairro = this.value" class="flex-1 bg-white border-2 border-gray-100 rounded-xl px-3 py-2 text-[10px] font-black uppercase text-blue-900"><input type="number" step="0.01" value="${parseFloat(t.valor).toFixed(2)}" onchange="dadosLoja.taxas[${i}].valor = parseFloat(this.value)" class="w-16 bg-white border-2 border-gray-100 rounded-xl px-2 py-2 text-[10px] font-black text-blue-600"><button onclick="dadosLoja.taxas.splice(${i},1); renderizarTaxas()" class="text-red-500 font-black px-2">×</button></div>`;
             });
         }
-
-        function adicionarTaxa() {
-            const bairro = document.getElementById('novo-bairro').value;
-            const valor = document.getElementById('valor-bairro').value;
-            if(!bairro || !valor) return;
-            dadosLoja.taxas.push({ bairro: bairro.toUpperCase(), valor: parseFloat(valor) });
-            document.getElementById('novo-bairro').value = "";
-            document.getElementById('valor-bairro').value = "";
-            renderizarTaxas();
-        }
-
-        function removerTaxa(i) { dadosLoja.taxas.splice(i, 1); renderizarTaxas(); }
-
-        function abrirAba(id) {
-            document.querySelectorAll('.secao-aba').forEach(s => s.classList.remove('secao-ativa'));
-            document.querySelectorAll('.aba-btn').forEach(b => b.classList.remove('aba-ativa'));
-            document.getElementById(id).classList.add('secao-ativa');
-            document.getElementById('btn-' + id).classList.add('aba-ativa');
-        }
+        function adicionarTaxa() { if(!dadosLoja.taxas) dadosLoja.taxas = []; dadosLoja.taxas.push({ bairro: "NOVO", valor: 0 }); renderizarTaxas(); }
 
         function salvarNoFirebase() {
-            const btnSalvar = document.getElementById('btn-salvar');
-            btnSalvar.innerText = "⏳ SALVANDO NO GOOGLE...";
-            btnSalvar.disabled = true;
-
+            const btn = document.getElementById('btn-salvar');
+            btn.innerHTML = "<span>⏳ SALVANDO...</span>";
             dadosLoja.config.preparo = document.getElementById('preparo').value;
             dadosLoja.config.entrega = document.getElementById('entrega').value;
             dadosLoja.config.whatsapp = document.getElementById('whatsapp').value;
-            dadosLoja.config.taxaPadrao = document.getElementById('taxaPadrao').value;
-
-            document.querySelectorAll('.preco-input').forEach(input => {
-                const id = parseInt(input.dataset.id);
-                const p = dadosLoja.produtos.find(x => x.id === id);
-                if(p) p.preco = parseFloat(input.value) || 0;
-            });
-
-            document.querySelectorAll('.desc-input').forEach(tx => {
-                dadosLoja.descricoes[tx.dataset.id] = tx.value;
-            });
-
-            db.ref('navega_data').set(dadosLoja).then(() => {
-                alert("✅ DADOS SINCRONIZADOS COM O GOOGLE!");
-                btnSalvar.innerText = "💾 SALVAR NO GOOGLE";
-                btnSalvar.disabled = false;
-            }).catch(err => {
-                alert("❌ ERRO AO SALVAR: " + err.message);
-                btnSalvar.disabled = false;
-            });
+            db.ref('navega_data').set(dadosLoja).then(() => { alert("✅ SINCRONIZADO!"); btn.innerHTML = "<span>💾 SALVAR TUDO</span>"; });
         }
 
-        // Inicia a interface com os dados travados no código
-        carregarInterface();
+        db.ref('navega_data').on('value', (s) => { if(s.exists()) { const d = s.val(); dadosLoja.config = d.config || {}; dadosLoja.produtos = d.produtos || []; dadosLoja.descricoes = d.descricoes || {}; dadosLoja.taxas = d.taxas || []; } carregarInterface(); });
     </script>
 </body>
 </html>
