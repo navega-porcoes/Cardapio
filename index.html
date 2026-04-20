@@ -52,6 +52,7 @@
                 <button onclick="fecharCarrinho()" class="bg-gray-100 text-gray-500 w-10 h-10 rounded-full font-black text-xl shadow-inner flex items-center justify-center border">✕</button>
             </div>
             <div id="itens-sacola" class="space-y-3 mb-4 text-sm font-bold"></div>
+            
             <div class="space-y-1 p-3 bg-gray-100 rounded-xl mb-6 border border-dashed border-gray-300">
                 <div class="flex justify-between items-center">
                     <span class="font-black uppercase italic text-gray-500 text-[10px]">Taxa de Entrega:</span>
@@ -62,6 +63,7 @@
                     <span id="total-sacola-txt" class="font-black text-xl text-blue-800 italic">R$ 0,00</span>
                 </div>
             </div>
+
             <div class="mb-6 space-y-3 bg-blue-50 p-4 rounded-xl border border-blue-100">
                 <p class="text-blue-800 font-black text-[10px] uppercase italic mb-1">📍 Endereço de Entrega:</p>
                 <input type="text" id="end-rua" placeholder="Rua e Número" class="w-full border rounded-lg p-3 text-sm">
@@ -70,6 +72,7 @@
                 <input type="text" id="end-ref" placeholder="Ponto de referência" class="w-full border rounded-lg p-3 text-sm">
                 <textarea id="obs-pedido" placeholder="Alguma observação?" class="w-full border rounded-lg p-3 text-sm" rows="2"></textarea>
             </div>
+
             <div class="mb-6">
                 <label class="block text-[10px] font-black uppercase text-gray-400 mb-2 font-bold">Pagamento</label>
                 <select id="pagamento" class="w-full border rounded-lg p-3 text-sm bg-white font-bold" onchange="verificarDinheiro(this.value)">
@@ -91,13 +94,12 @@
             <div class="p-6 text-center">
                 <h2 id="m-titulo" class="font-black text-blue-800 border-b pb-2 uppercase italic text-xl mb-4"></h2>
                 <p id="m-desc" class="py-4 text-gray-700 italic text-base px-2"></p>
-                <button onclick="fecharModal()" class="w-full bg-blue-700 text-white py-4 rounded-xl font-black uppercase mt-4 active:scale-95">Voltar</button>
+                <button onclick="fecharModal()" class="w-full bg-blue-700 text-white py-4 rounded-xl font-black uppercase mt-4">Voltar</button>
             </div>
         </div>
     </div>
 
     <script>
-        // CONFIGURAÇÃO FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyD-X6VVXJmgpn_uQBhB8Z_J5443S6A6_tE",
             authDomain: "navega-porcoes.firebaseapp.com",
@@ -114,42 +116,58 @@
         let sacola = {};
         let taxaAtual = 0.00;
         let dadosGlobais = null;
+        let listaExibicao = [];
 
-        let produtos = [
-            { id: 1, cat: 'porcoes', grupo: 'Tamanho P', nome: 'Batata Tradicional P', preco: 35.00, desc: 'Batata frita crocante, cheddar, bacon, Catupiry + molho verde.', foto: 'https://i.ibb.co/RkcBxdMr/batata-frita-com-bacon-e-cheddar-na-airfryer.jpg' },
-            { id: 2, cat: 'porcoes', grupo: 'Tamanho P', nome: 'Porção P 1', preco: 43.99, desc: 'Batata, bacon, cheddar, Catupiry, linguiça toscana, bife acebolado + Calabresa acebolada.', foto: 'https://i.ibb.co/ntn8XdZ/IMG-20260412-203125.jpg' },
-            { id: 3, cat: 'porcoes', grupo: 'Tamanho P', nome: 'Porção P 2', preco: 43.99, desc: 'Batata, bacon, cheddar, Catupiry, isca de frango, linguiça toscana + bife acebolado.', foto: 'https://i.ibb.co/9DGm5hn/IMG-20260319-224016.png' },
-            { id: 4, cat: 'porcoes', grupo: 'Tamanho P', nome: 'Porção P 3', preco: 43.99, desc: 'Batata, bacon, cheddar, Catupiry, calabresa acebolada, isca de frango e linguiça toscana.', foto: 'https://i.ibb.co/XkYhkyWq/IMG-20260417-185405.jpg' },
-            { id: 5, cat: 'porcoes', grupo: 'Tamanho P', nome: 'Porção P 4', preco: 44.99, desc: 'Batata, bacon, cheddar, Catupiry, isca de frango, calabresa + bife acebolado.', foto: 'https://i.ibb.co/4ZmMtPGn/1000080038.png' },
-            { id: 6, cat: 'porcoes', grupo: 'Tamanho P', nome: 'Porção P 5', preco: 43.99, desc: 'Batata, bacon, cheddar, Catupiry, frango, linguiça, bife e calabresa.', foto: 'https://i.ibb.co/4ZmMtPGn/1000080038.png' },
-            { id: 7, cat: 'porcoes', grupo: 'Tamanho P', nome: 'Porção P 6', preco: 43.99, desc: 'Mix completo da casa tamanho P.', foto: 'https://i.ibb.co/4ZmMtPGn/1000080038.png' },
-            { id: 8, cat: 'porcoes', grupo: 'Tamanho P', nome: 'Porção P 7', preco: 48.99, desc: 'Batata, bacon, cheddar + mais calabresa acebolada.', foto: 'https://i.ibb.co/0pqw54pT/IMG-20260417-190352.jpg' },
-            { id: 10, cat: 'porcoes', grupo: 'Tamanho M', nome: 'Batata Tradicional M', preco: 45.00, desc: 'Batata, cheddar, bacon, Catupiry + molho verde.', foto: 'https://i.ibb.co/hRV0Lqfy/IMG-20260418-191113.jpg' },
-            { id: 11, cat: 'porcoes', grupo: 'Tamanho M', nome: 'Porção M 1', preco: 64.99, desc: 'Batata, bacon, cheddar, Catupiry, linguiça toscana, bife acebolado + Calabresa acebolada.', foto: 'https://i.ibb.co/HfGrBmbH/IMG-20260418-WA0023.jpg' },
-            { id: 12, cat: 'porcoes', grupo: 'Tamanho M', nome: 'Porção M 2', preco: 64.99, desc: 'Batata, bacon, cheddar, Catupiry, isca de frango, linguiça toscana + bife acebolado.', foto: 'https://i.ibb.co/4ZmMtPGn/1000080038.png' },
-            { id: 13, cat: 'porcoes', grupo: 'Tamanho M', nome: 'Porção M 3', preco: 64.99, desc: 'Batata, bacon, cheddar, Catupiry, calabresa acebolada, isca de frango e linguiça toscana.', foto: 'https://i.ibb.co/PzDhvMtF/IMG-20260319-205625.jpg' },
-            { id: 14, cat: 'porcoes', grupo: 'Tamanho M', nome: 'Porção M 4', preco: 65.99, desc: 'Batata, bacon, cheddar, Catupiry, isca de frango, calabresa acebolada + molho verde.', foto: 'https://i.ibb.co/bjtSP7CC/IMG-20260418-211926.png' },
-            { id: 15, cat: 'porcoes', grupo: 'Tamanho M', nome: 'Porção M 5', preco: 64.99, desc: 'Batata, bacon, cheddar, Catupiry, isca de frango, linguiça toscana, bife acebolado e calabresa.', foto: 'https://i.ibb.co/GfbPFfZQ/IMG-20260418-201125.jpg' },
-            { id: 20, cat: 'porcoes', grupo: 'Tamanho G', nome: 'Batata Tradicional G', preco: 55.00, desc: 'Batata, cheddar, bacon, Catupiry + molho verde.', foto: 'https://i.ibb.co/sdF0BmzQ/IMG-20260418-185448.jpg' },
-            { id: 21, cat: 'porcoes', grupo: 'Tamanho G', nome: 'Porção G 1', preco: 74.99, desc: 'Batata, bacon, cheddar, Catupiry, linguiça toscana, bife acebolado + Calabresa acebolada.', foto: 'https://i.ibb.co/4ZmMtPGn/1000080038.png' },
-            { id: 22, cat: 'porcoes', grupo: 'Tamanho G', nome: 'Porção G 2', preco: 74.99, desc: 'Batata, bacon, cheddar, Catupiry, isca de frango, linguiça toscana + bife acebolado.', foto: 'https://i.ibb.co/4ZmMtPGn/1000080038.png' },
-            { id: 23, cat: 'porcoes', grupo: 'Tamanho G', nome: 'Porção G 3', preco: 74.99, desc: 'Batata, bacon, cheddar, Catupiry, calabresa acebolada, isca de frango e linguiça toscana.', foto: 'https://i.ibb.co/YBNcnf1V/IMG-20260327-210409.jpg' },
-            { id: 24, cat: 'porcoes', grupo: 'Tamanho G', nome: 'Porção G 4', preco: 75.99, desc: 'Batata, bacon, cheddar, Catupiry, isca de frango, calabresa acebolada + bife acebolado.', foto: 'https://i.ibb.co/4ZmMtPGn/1000080038.png' },
-            { id: 25, cat: 'porcoes', grupo: 'Tamanho G', nome: 'Porção G 5', preco: 75.99, desc: 'Batata, bacon, cheddar, Catupiry, frango, linguiça, bife e calabresa tamanho G.', foto: 'https://i.ibb.co/203tt4m9/IMG-20260326-WA0020.jpg' },
-            { id: 50, cat: 'bebidas', grupo: 'Refrigerantes', nome: 'Coca-Cola 2L', preco: 17.99, desc: 'Gelada.', foto: 'https://i.ibb.co/7tMVsnPS/2301822-7894900027013-BEB-REFRIG-COCA-COLA-2-L-PET.jpg' },
-            { id: 51, cat: 'bebidas', grupo: 'Refrigerantes', nome: 'Kuat 2L', preco: 12.50, desc: 'Gelada.', foto: 'https://i.ibb.co/B5qbSsBV/IMG-20260418-192121.jpg' },
-            { id: 52, cat: 'bebidas', grupo: 'Refrigerantes', nome: 'Sprite 2L', preco: 14.99, desc: 'Gelada.', foto: 'https://i.ibb.co/zHLh5MM5/whatsapp-image-2024-08-13-at-13-05-44.jpg' }
+        // FOTOS FIXAS DOS ITENS QUE JÁ TEMOS
+        let produtosFixos = [
+            { id: 1, grupo: 'Tamanho P', foto: 'https://i.ibb.co/RkcBxdMr/batata-frita-com-bacon-e-cheddar-na-airfryer.jpg' },
+            { id: 2, grupo: 'Tamanho P', foto: 'https://i.ibb.co/ntn8XdZ/IMG-20260412-203125.jpg' },
+            { id: 3, grupo: 'Tamanho P', foto: 'https://i.ibb.co/9DGm5hn/IMG-20260319-224016.png' },
+            { id: 4, grupo: 'Tamanho P', foto: 'https://i.ibb.co/XkYhkyWq/IMG-20260417-185405.jpg' },
+            { id: 8, grupo: 'Tamanho P', foto: 'https://i.ibb.co/0pqw54pT/IMG-20260417-190352.jpg' },
+            { id: 10, grupo: 'Tamanho M', foto: 'https://i.ibb.co/hRV0Lqfy/IMG-20260418-191113.jpg' },
+            { id: 11, grupo: 'Tamanho M', foto: 'https://i.ibb.co/HfGrBmbH/IMG-20260418-WA0023.jpg' },
+            { id: 13, grupo: 'Tamanho M', foto: 'https://i.ibb.co/PzDhvMtF/IMG-20260319-205625.jpg' },
+            { id: 14, grupo: 'Tamanho M', foto: 'https://i.ibb.co/bjtSP7CC/IMG-20260418-211926.png' },
+            { id: 15, grupo: 'Tamanho M', foto: 'https://i.ibb.co/GfbPFfZQ/IMG-20260418-201125.jpg' },
+            { id: 20, grupo: 'Tamanho G', foto: 'https://i.ibb.co/sdF0BmzQ/IMG-20260418-185448.jpg' },
+            { id: 23, grupo: 'Tamanho G', foto: 'https://i.ibb.co/YBNcnf1V/IMG-20260327-210409.jpg' },
+            { id: 25, grupo: 'Tamanho G', foto: 'https://i.ibb.co/203tt4m9/IMG-20260326-WA0020.jpg' },
+            { id: 50, grupo: 'Refrigerantes', foto: 'https://i.ibb.co/7tMVsnPS/2301822-7894900027013-BEB-REFRIG-COCA-COLA-2-L-PET.jpg' },
+            { id: 51, grupo: 'Refrigerantes', foto: 'https://i.ibb.co/B5qbSsBV/IMG-20260418-192121.jpg' },
+            { id: 52, grupo: 'Refrigerantes', foto: 'https://i.ibb.co/zHLh5MM5/whatsapp-image-2024-08-13-at-13-05-44.jpg' },
+            { id: 100, grupo: 'Refrigerantes', foto: 'https://i.ibb.co/7tMVsnPS/2301822-7894900027013-BEB-REFRIG-COCA-COLA-2-L-PET.jpg' },
+            { id: 101, grupo: 'Refrigerantes', foto: 'https://i.ibb.co/B5qbSsBV/IMG-20260418-192121.jpg' },
+            { id: 102, grupo: 'Refrigerantes', foto: 'https://i.ibb.co/zHLh5MM5/whatsapp-image-2024-08-13-at-13-05-44.jpg' }
         ];
 
-        // FUNÇÃO PARA LER DO FIREBASE EM TEMPO REAL
         function monitorarFirebase() {
             db.ref('navega_data').on('value', (snapshot) => {
                 if (snapshot.exists()) {
                     dadosGlobais = snapshot.val();
-                    const config = dadosGlobais.config;
-                    const precosSalvos = dadosGlobais.produtos;
-                    const descSalvas = dadosGlobais.descricoes;
+                    const precosCloud = dadosGlobais.produtos || [];
+                    const descCloud = dadosGlobais.descricoes || {};
+                    
+                    listaExibicao = precosCloud.map(pCloud => {
+                        const fixo = produtosFixos.find(f => f.id === pCloud.id);
+                        const nome = pCloud.nome || "";
+                        
+                        // IDENTIFICA SE É BEBIDA PELO NOME OU ID
+                        const ehBebida = nome.includes("2L") || nome.includes("Lata") || nome.includes("Coca") || nome.includes("Suco") || pCloud.id >= 100;
 
+                        return {
+                            id: pCloud.id,
+                            nome: nome || "Novo Item",
+                            preco: parseFloat(pCloud.preco) || 0,
+                            esgotado: pCloud.esgotado || false,
+                            cat: ehBebida ? 'bebidas' : 'porcoes',
+                            grupo: fixo ? fixo.grupo : (ehBebida ? 'Refrigerantes' : (pCloud.id < 10 ? 'Tamanho P' : pCloud.id < 20 ? 'Tamanho M' : 'Tamanho G')),
+                            desc: descCloud[pCloud.id] || "Novidade na Navega!",
+                            foto: fixo ? fixo.foto : "https://i.ibb.co/4ZmMtPGn/1000080038.png"
+                        };
+                    });
+
+                    const config = dadosGlobais.config;
                     if (config) {
                         document.getElementById('info-preparo').innerHTML = `⏱️ PREPARO: ${config.preparo} | 🛵 ENTREGA: ${config.entrega}`;
                         const btnFinal = document.getElementById('btn-finalizar');
@@ -163,55 +181,14 @@
                             btnFinal.innerText = "Fazer Pedido 🚀";
                         }
                     }
-
-                    produtos.forEach(p => {
-                        if (precosSalvos) {
-                            const cloudP = precosSalvos.find(x => x.id === p.id);
-                            if (cloudP) p.preco = parseFloat(cloudP.preco) || p.preco;
-                        }
-                        if (descSalvas && descSalvas[p.id]) {
-                            p.desc = descSalvas[p.id];
-                        }
-                    });
                     renderizarProdutos();
                 }
             });
         }
 
-        function validarBairroDinamico(texto) {
-            if(!dadosGlobais) return;
-            const normalizar = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
-            const bairroDigitado = normalizar(texto);
-            const alerta = document.getElementById('alerta-taxa');
-            const taxasSalvas = dadosGlobais.taxas || [];
-            const configSalva = dadosGlobais.config || { taxaPadrao: 0 };
-
-            const busca = taxasSalvas.find(t => normalizar(t.bairro) === bairroDigitado);
-
-            if (busca) {
-                taxaAtual = parseFloat(busca.valor) || 0;
-                alerta.innerText = (taxaAtual === 0) ? "✅ ENTREGA GRÁTIS!" : `🛵 TAXA DE ENTREGA: R$ ${taxaAtual.toFixed(2).replace('.', ',')}`;
-                alerta.className = (taxaAtual === 0) ? "block text-[10px] font-black uppercase italic p-2 rounded-lg bg-green-100 text-green-600 mt-2" : "block text-[10px] font-black uppercase italic p-2 rounded-lg bg-red-100 text-red-600 mt-2";
-            } else if (bairroDigitado.length > 3) {
-                taxaAtual = parseFloat(configSalva.taxaPadrao) || 0;
-                alerta.innerText = (taxaAtual === 0) ? "✅ ENTREGA GRÁTIS (PADRÃO)!" : `🛵 TAXA DE ENTREGA PADRÃO: R$ ${taxaAtual.toFixed(2).replace('.', ',')}`;
-                alerta.className = (taxaAtual === 0) ? "block text-[10px] font-black uppercase italic p-2 rounded-lg bg-green-100 text-green-600 mt-2" : "block text-[10px] font-black uppercase italic p-2 rounded-lg bg-blue-100 text-blue-800 mt-2";
-            } else {
-                taxaAtual = 0; alerta.className = "hidden";
-            }
-            atualizarRodape();
-        }
-
-        function filtrar(c) {
-            categoriaAtual = c;
-            document.getElementById('tab-porcoes').className = (c === 'porcoes') ? 'py-5 w-full aba-ativa text-base' : 'py-5 w-full text-gray-400 text-base';
-            document.getElementById('tab-bebidas').className = (c === 'bebidas') ? 'py-5 w-full aba-ativa text-base' : 'py-5 w-full text-gray-400 text-base';
-            renderizarProdutos();
-        }
-
         function renderizarProdutos() {
             const container = document.getElementById('lista-produtos');
-            const filtrados = produtos.filter(p => p.cat === categoriaAtual);
+            const filtrados = listaExibicao.filter(p => p.cat === categoriaAtual && !p.esgotado);
             let html = ""; let ultimo = "";
             filtrados.forEach(p => {
                 if (p.grupo !== ultimo) { html += `<div class="divisor-tamanho">${p.grupo}</div>`; ultimo = p.grupo; }
@@ -231,11 +208,14 @@
                     </div>
                 </div>`;
             });
-            container.innerHTML = html;
+            container.innerHTML = html || "<p class='text-center text-gray-400 py-10 font-bold uppercase italic text-xs'>Nenhum item disponível nesta categoria.</p>";
         }
 
         function mudarQtd(id, v) {
-            if (!sacola[id]) sacola[id] = { ...produtos.find(p => p.id === id), qtd: 0 };
+            if (!sacola[id]) {
+                const pBase = listaExibicao.find(p => p.id === id);
+                sacola[id] = { ...pBase, qtd: 0 };
+            }
             sacola[id].qtd += v;
             if (sacola[id].qtd <= 0) delete sacola[id];
             renderizarProdutos(); atualizarRodape();
@@ -251,11 +231,21 @@
             if(tt) tt.innerText = (taxaAtual === 0) ? "GRÁTIS" : `R$ ${taxaAtual.toFixed(2).replace('.',',')}`;
         }
 
-        function abrirCarrinho() {
-            const l = document.getElementById('itens-sacola'); l.innerHTML = ""; let tem = false;
-            for(let i in sacola) { tem = true; l.innerHTML += `<div class="p-2 bg-gray-50 border-b">🔹 ${sacola[i].qtd}x ${sacola[i].nome}</div>`; }
-            if(!tem) return alert("Sacola vazia!");
-            document.getElementById('modalCarrinho').style.display = 'flex';
+        function validarBairroDinamico(texto) {
+            if(!dadosGlobais) return;
+            const normalizar = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+            const bairroDigitado = normalizar(texto);
+            const alerta = document.getElementById('alerta-taxa');
+            const taxasSalvas = dadosGlobais.taxas || [];
+            const busca = taxasSalvas.find(t => normalizar(t.bairro) === bairroDigitado);
+
+            if (busca) {
+                taxaAtual = parseFloat(busca.valor) || 0;
+                alerta.innerText = (taxaAtual === 0) ? "✅ ENTREGA GRÁTIS!" : `🛵 TAXA DE ENTREGA: R$ ${taxaAtual.toFixed(2).replace('.', ',')}`;
+                alerta.className = "block text-[10px] font-black uppercase italic p-2 rounded-lg bg-green-100 text-green-600 mt-2";
+            } else {
+                taxaAtual = 0; alerta.className = "hidden";
+            }
             atualizarRodape();
         }
 
@@ -272,33 +262,45 @@
             let res = ""; let sub = 0;
             for(let i in sacola) { res += `🔹 *${sacola[i].qtd}x ${sacola[i].nome}*\n`; sub += sacola[i].qtd * (parseFloat(sacola[i].preco) || 0); }
             const total = sub + taxaAtual;
-            const zap = dadosGlobais?.config?.whatsapp || "5543996649273";
+            const zap = dadosGlobais?.config?.whatsapp || "5547992153920";
 
             let m = `🎯 *NOVO PEDIDO - NAVEGA PORÇÕES* 🎯\n\n${res}\n📍 *END:* ${r}\n🏡 *BAIRRO:* ${b}\n`;
             if(ref) m += `📍 *REF:* ${ref}\n`;
             if(obs) m += `📝 *OBS:* ${obs}\n`;
             m += `\n💰 *PAG:* ${pag}\n`;
             if(pag === 'Dinheiro' && trocoPara > total) {
-                m += `💵 *Troco para:* R$ ${trocoPara.toFixed(2).replace('.',',')}\n`;
-                m += `🤝 *(LEVAR R$ ${(trocoPara - total).toFixed(2).replace('.',',')} DE TROCO)*\n`;
+                m += `💵 *Troco para:* R$ ${trocoPara.toFixed(2).replace('.',',')}\n🤝 *(LEVAR R$ ${(trocoPara - total).toFixed(2).replace('.',',')} DE TROCO)*\n`;
             }
             m += (taxaAtual === 0) ? `🛵 *ENTREGA: GRÁTIS*\n` : `🛵 *TAXA:* R$ ${taxaAtual.toFixed(2).replace('.',',')}\n`;
             m += `\n👑 *TOTAL: R$ ${total.toFixed(2).replace('.',',')}* 👑`;
+            
             window.open(`https://wa.me/${zap}?text=${encodeURIComponent(m)}`);
         }
 
         function abrirDetalhes(n,d,f) {
             document.getElementById('m-titulo').innerText = n;
-            document.getElementById('m-desc').innerText = d || "Especialidade Navega Porções.";
+            document.getElementById('m-desc').innerText = d;
             document.getElementById('m-img').src = f;
             document.getElementById('meuModal').style.display = 'flex';
         }
 
+        function filtrar(c) {
+            categoriaAtual = c;
+            document.getElementById('tab-porcoes').className = (c === 'porcoes') ? 'py-5 w-full aba-ativa text-base' : 'py-5 w-full text-gray-400 text-base';
+            document.getElementById('tab-bebidas').className = (c === 'bebidas') ? 'py-5 w-full aba-ativa text-base' : 'py-5 w-full text-gray-400 text-base';
+            renderizarProdutos();
+        }
+
         function fecharModal() { document.getElementById('meuModal').style.display = 'none'; }
         function fecharCarrinho() { document.getElementById('modalCarrinho').style.display = 'none'; }
+        function abrirCarrinho() { 
+            const l = document.getElementById('itens-sacola'); l.innerHTML = ""; let tem = false;
+            for(let i in sacola) { tem = true; l.innerHTML += `<div class="p-2 bg-gray-50 border-b flex justify-between"><span>🔹 ${sacola[i].qtd}x ${sacola[i].nome}</span> <span>R$ ${(sacola[i].qtd * (parseFloat(sacola[i].preco) || 0)).toFixed(2)}</span></div>`; }
+            if(!tem) return alert("Sacola vazia!");
+            document.getElementById('modalCarrinho').style.display = 'flex'; 
+        }
         function verificarDinheiro(v) { document.getElementById('div-troco').classList.toggle('hidden', v !== 'Dinheiro'); }
 
-        // INICIA O MONITORAMENTO DO GOOGLE
         monitorarFirebase();
     </script>
 </body>
