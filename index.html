@@ -69,13 +69,17 @@
             </div>
 
             <div class="mb-6 space-y-3 bg-blue-50 p-4 rounded-xl border border-blue-100">
-                <p class="text-blue-800 font-black text-[10px] uppercase italic mb-1">📍 Endereço de Entrega:</p>
-                <input type="text" id="end-rua" placeholder="Rua e Número" class="w-full border rounded-lg p-3 text-sm">
-                <input type="text" id="end-bairro" placeholder="Digite seu Bairro" class="w-full border rounded-lg p-3 text-sm font-bold uppercase" oninput="validarBairroDinamico(this.value)">
-                <div id="alerta-taxa" class="hidden text-[10px] font-black uppercase italic p-2 rounded-lg text-center"></div>
-                <input type="text" id="end-ref" placeholder="Ponto de referência" class="w-full border rounded-lg p-3 text-sm">
-                <textarea id="obs-pedido" placeholder="Alguma observação?" class="w-full border rounded-lg p-3 text-sm" rows="2"></textarea>
-            </div>
+                    <p class="text-blue-800 font-black text-[10px] uppercase italic mb-1">📍 Endereço de Entrega:</p>
+    <input type="text" id="end-rua" placeholder="Rua e Número" class="w-full border rounded-lg p-3 text-sm">
+    
+    <div class="relative">
+        <input type="text" id="end-bairro" placeholder="Digite seu Bairro" class="w-full border rounded-lg p-3 text-sm font-bold uppercase" oninput="validarBairroDinamico(this.value)" autocomplete="off">
+        <div id="lista-sugestoes-bairro" class="hidden absolute z-50 bg-white border w-full rounded-b-lg shadow-xl max-h-40 overflow-y-auto text-sm font-bold uppercase text-blue-800"></div>
+    </div>
+
+    <div id="alerta-taxa" class="hidden text-[10px] font-black uppercase italic p-2 rounded-lg text-center"></div>
+<input type="text" id="end-ref" placeholder="Ponto de referência" class="w-full border rounded-lg p-3 text-sm">
+<textarea id="obs-pedido" placeholder="Alguma observação?" class="w-full border rounded-lg p-3 text-sm" rows="2"></textarea>
 
             <div class="mb-6">
                 <label class="block text-[10px] font-black uppercase text-gray-400 mb-2 font-bold">Pagamento</label>
@@ -239,23 +243,93 @@
             if(tt) tt.innerText = (taxaAtual === 0) ? "GRÁTIS" : `R$ ${taxaAtual.toFixed(2).replace('.',',')}`;
         }
 
-        function validarBairroDinamico(texto) {
+                        function validarBairroDinamico(texto) {
             if(!dadosGlobais) return;
+            // FUNÇÃO QUE MATA OS ACENTOS
             const normalizar = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
             const bairroDigitado = normalizar(texto);
             const alerta = document.getElementById('alerta-taxa');
+            const btnEnviar = document.querySelector("#modalCarrinho button[onclick='enviarPedido()']");
             const taxasSalvas = dadosGlobais.taxas || [];
+            
+            // Busca o bairro ignorando acentos e maiúsculas
             const busca = taxasSalvas.find(t => normalizar(t.bairro) === bairroDigitado);
 
             if (busca) {
                 taxaAtual = parseFloat(busca.valor) || 0;
-                alerta.innerText = (taxaAtual === 0) ? "✅ ENTREGA GRÁTIS!" : `🛵 TAXA DE ENTREGA: R$ ${taxaAtual.toFixed(2).replace('.', ',')}`;
+                alerta.innerText = (taxaAtual === 0) ? "✅ ENTREGA GRÁTIS PARA ESTE BAIRRO!" : `🛵 TAXA DE ENTREGA: R$ ${taxaAtual.toFixed(2).replace('.', ',')}`;
                 alerta.className = "block text-[10px] font-black uppercase italic p-2 rounded-lg bg-green-100 text-green-600 mt-2";
+                btnEnviar.disabled = false;
+                btnEnviar.className = "w-full bg-green-500 text-white py-4 rounded-xl font-black uppercase italic shadow-lg mb-4";
+                btnEnviar.innerText = "Enviar Pedido 🚀";
+            } else if (texto.length > 4) { 
+                // SE DIGITOU MAIS DE 4 LETRAS E NÃO ACHOU NADA, BLOQUEIA! (Resolve o erro do Machados)
+                taxaAtual = 0;
+                alerta.innerText = "❌ BAIRRO NÃO ATENDIDO OU NÃO ENCONTRADO";
+                alerta.className = "block text-[10px] font-black uppercase italic p-2 rounded-lg bg-red-100 text-red-600 mt-2";
+                btnEnviar.disabled = true;
+                btnEnviar.className = "w-full bg-gray-400 text-white py-4 rounded-xl font-black uppercase italic shadow-lg mb-4 cursor-not-allowed";
+                btnEnviar.innerText = "Indisponível para esta região 🛑";
             } else {
-                taxaAtual = 0; alerta.className = "hidden";
+                taxaAtual = 0;
+                alerta.className = "hidden";
+                btnEnviar.disabled = false;
+                btnEnviar.className = "w-full bg-green-500 text-white py-4 rounded-xl font-black uppercase italic shadow-lg mb-4";
+                btnEnviar.innerText = "Enviar Pedido 🚀";
             }
             atualizarRodape();
+            mostrarSugestoes(texto); 
         }
+
+        function mostrarSugestoes(texto) {
+            const listaSugerida = document.getElementById('lista-sugestoes-bairro');
+            const normalizar = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+            const termoBusca = normalizar(texto);
+
+            listaSugerida.innerHTML = ""; 
+
+            if (texto.length < 2) { 
+                listaSugerida.classList.add('hidden'); 
+                listaSugerida.style.display = 'none';
+                return; 
+            }
+            
+            const taxasSalvas = dadosGlobais.taxas || [];
+            // Aqui a mágica acontece: ele filtra comparando os nomes sem acento!
+            const filtrados = taxasSalvas.filter(t => normalizar(t.bairro).includes(termoBusca));
+
+            if (filtrados.length > 0) {
+                listaSugerida.innerHTML = filtrados.map(t => `<div class="p-3 border-b cursor-pointer hover:bg-blue-50" onclick="selecionarBairro('${t.bairro}')">${t.bairro}</div>`).join('');
+                listaSugerida.classList.remove('hidden');
+                listaSugerida.style.display = 'block';
+            } else {
+                listaSugerida.classList.add('hidden');
+                listaSugerida.style.display = 'none';
+            }
+        }
+
+
+                   function selecionarBairro(nome) {
+            // 1. Preenche o campo de texto
+            document.getElementById('end-bairro').value = nome;
+            
+            // 2. LIMPEZA TOTAL DA GAVETA
+            const lista = document.getElementById('lista-sugestoes-bairro');
+            lista.innerHTML = ""; 
+            
+            // FORÇA O FECHAMENTO (O segredo está aqui)
+            setTimeout(() => {
+                lista.classList.add('hidden');
+                lista.style.display = 'none'; // Garante que suma visualmente
+            }, 100);
+            
+            // 3. Atualiza os valores da Navega
+            validarBairroDinamico(nome);
+            atualizarRodape();
+        }
+
+
+
 
         function enviarPedido() {
             const r = document.getElementById('end-rua').value;
