@@ -7,6 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script>
+
+</script>
+
     <style>
         #meuModal, #modalCarrinho { display: none; }
         .img-produto { width: 75px; height: 75px; object-fit: cover; border-radius: 10px; background: #f3f4f6; border: 1px solid #e5e7eb; }
@@ -306,6 +310,16 @@
         function verificarDinheiro(v) { document.getElementById('div-troco').classList.toggle('hidden', v !== 'Dinheiro'); }
 
         monitorarFirebase();
-    </script>
+
+    // --- CÓDIGO DO OLHO (CORRIGIDO) ---
+    // Não criamos o 'db' de novo, apenas usamos o que já existe
+    const visualizacaoRef = firebase.database().ref('online_agora/' + Math.floor(Math.random() * 1000000));
+    visualizacaoRef.set(true);
+    visualizacaoRef.onDisconnect().remove();
+
+</script>
+
+</script>
+
 </body>
 </html>
