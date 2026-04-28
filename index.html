@@ -7,10 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-    <script>
-
-</script>
-
     <style>
         #meuModal, #modalCarrinho { display: none; }
         .img-produto { width: 75px; height: 75px; object-fit: cover; border-radius: 10px; background: #f3f4f6; border: 1px solid #e5e7eb; }
@@ -69,34 +65,35 @@
             </div>
 
             <div class="mb-6 space-y-3 bg-blue-50 p-4 rounded-xl border border-blue-100">
-                    <p class="text-blue-800 font-black text-[10px] uppercase italic mb-1">📍 Endereço de Entrega:</p>
-    <input type="text" id="end-rua" placeholder="Rua e Número" class="w-full border rounded-lg p-3 text-sm">
-    
-    <div class="relative">
-        <input type="text" id="end-bairro" placeholder="Digite seu Bairro" class="w-full border rounded-lg p-3 text-sm font-bold uppercase" oninput="validarBairroDinamico(this.value)" autocomplete="off">
-        <div id="lista-sugestoes-bairro" class="hidden absolute z-50 bg-white border w-full rounded-b-lg shadow-xl max-h-40 overflow-y-auto text-sm font-bold uppercase text-blue-800"></div>
-    </div>
-
-    <div id="alerta-taxa" class="hidden text-[10px] font-black uppercase italic p-2 rounded-lg text-center"></div>
-<input type="text" id="end-ref" placeholder="Ponto de referência" class="w-full border rounded-lg p-3 text-sm">
-<textarea id="obs-pedido" placeholder="Alguma observação?" class="w-full border rounded-lg p-3 text-sm" rows="2"></textarea>
-
-            <div class="mb-6">
-                <label class="block text-[10px] font-black uppercase text-gray-400 mb-2 font-bold">Pagamento</label>
-                <select id="pagamento" class="w-full border rounded-lg p-3 text-sm bg-white font-bold" onchange="verificarDinheiro(this.value)">
-                    <option value="Pix">Pix</option>
-                    <option value="Cartão">Cartão</option>
-                    <option value="Dinheiro">Dinheiro</option>
-                </select>
-                <div id="div-troco" class="mt-3 hidden">
-                    <input type="number" id="troco-para" placeholder="Troco para quanto?" class="w-full border-2 border-blue-100 rounded-lg p-3 text-sm bg-blue-50">
+                <p class="text-blue-800 font-black text-[10px] uppercase italic mb-1">📍 Endereço de Entrega:</p>
+                <input type="text" id="end-rua" placeholder="Rua e Número" class="w-full border rounded-lg p-3 text-sm">
+                
+                <div class="relative">
+                    <input type="text" id="end-bairro" placeholder="Digite seu Bairro" class="w-full border rounded-lg p-3 text-sm font-bold uppercase" oninput="validarBairroDinamico(this.value)" autocomplete="off">
+                    <div id="lista-sugestoes-bairro" class="hidden absolute z-50 bg-white border w-full rounded-b-lg shadow-xl max-h-40 overflow-y-auto text-sm font-bold uppercase text-blue-800"></div>
                 </div>
+
+                <div id="alerta-taxa" class="hidden text-[10px] font-black uppercase italic p-2 rounded-lg text-center"></div>
+                <input type="text" id="end-ref" placeholder="Ponto de referência" class="w-full border rounded-lg p-3 text-sm">
+                <textarea id="obs-pedido" placeholder="Alguma observação?" class="w-full border rounded-lg p-3 text-sm" rows="2"></textarea>
+
+                <div class="mb-6">
+                    <label class="block text-[10px] font-black uppercase text-gray-400 mb-2 font-bold">Pagamento</label>
+                    <select id="pagamento" class="w-full border rounded-lg p-3 text-sm bg-white font-bold" onchange="verificarDinheiro(this.value)">
+                        <option value="Pix">Pix</option>
+                        <option value="Cartão">Cartão</option>
+                        <option value="Dinheiro">Dinheiro</option>
+                    </select>
+                    <div id="div-troco" class="mt-3 hidden">
+                        <input type="number" id="troco-para" placeholder="Troco para quanto?" class="w-full border-2 border-blue-100 rounded-lg p-3 text-sm bg-blue-50">
+                    </div>
+                </div>
+                <button onclick="enviarPedido()" class="w-full bg-green-500 text-white py-4 rounded-xl font-black uppercase italic shadow-lg mb-4">Enviar Pedido 🚀</button>
             </div>
-            <button onclick="enviarPedido()" class="w-full bg-green-500 text-white py-4 rounded-xl font-black uppercase italic shadow-lg mb-4">Enviar Pedido 🚀</button>
         </div>
     </div>
 
-    <div id="meuModal" class="fixed inset-0 bg-black/80 z-[60] flex items-center justify-center p-6" onclick="fecharModal()">
+    <div id="meuModal" class="fixed inset-0 bg-black/80 z-[10000] flex items-center justify-center p-6" onclick="fecharModal()" style="display: none;">
         <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl" onclick="event.stopPropagation()">
             <img id="m-img" src="" class="w-full h-64 object-cover">
             <div class="p-6 text-center">
@@ -126,15 +123,14 @@
         let dadosGlobais = null;
         let listaExibicao = [];
 
-        // FOTOS FIXAS DOS ITENS QUE JÁ TEMOS
         let produtosFixos = [
             { id: 1, grupo: 'Tamanho P', foto: 'https://i.ibb.co/RkcBxdMr/batata-frita-com-bacon-e-cheddar-na-airfryer.jpg' },
             { id: 2, grupo: 'Tamanho P', foto: 'https://i.ibb.co/ntn8XdZ/IMG-20260412-203125.jpg' },
             { id: 3, grupo: 'Tamanho P', foto: 'https://i.ibb.co/9DGm5hn/IMG-20260319-224016.png' },
             { id: 4, grupo: 'Tamanho P', foto: 'https://i.ibb.co/Mxn3tb2W/IMG-20260425-175739.jpg' },
-      { id: 5, grupo: 'Tamanho P', foto: 'https://i.ibb.co/4ZmMtPGn/1000080038.png' },
-      { id: 6, grupo: 'Tamanho P', foto: 'https://i.ibb.co/4ZmMtPGn/1000080038.png' },
-      { id: 7, grupo: 'Tamanho P', foto: 'https://i.ibb.co/4ZmMtPGn/1000080038.png' },
+            { id: 5, grupo: 'Tamanho P', foto: 'https://i.ibb.co/4ZmMtPGn/1000080038.png' },
+            { id: 6, grupo: 'Tamanho P', foto: 'https://i.ibb.co/4ZmMtPGn/1000080038.png' },
+            { id: 7, grupo: 'Tamanho P', foto: 'https://i.ibb.co/4ZmMtPGn/1000080038.png' },
             { id: 8, grupo: 'Tamanho P', foto: 'https://i.ibb.co/0pqw54pT/IMG-20260417-190352.jpg' },
             { id: 10, grupo: 'Tamanho M', foto: 'https://i.ibb.co/hRV0Lqfy/IMG-20260418-191113.jpg' },
             { id: 11, grupo: 'Tamanho M', foto: 'https://i.ibb.co/HfGrBmbH/IMG-20260418-WA0023.jpg' },
@@ -143,6 +139,7 @@
             { id: 14, grupo: 'Tamanho M', foto: 'https://i.ibb.co/bjtSP7CC/IMG-20260418-211926.png' },
             { id: 15, grupo: 'Tamanho M', foto: 'https://i.ibb.co/GfbPFfZQ/IMG-20260418-201125.jpg' },
             { id: 20, grupo: 'Tamanho G', foto: 'https://i.ibb.co/sdF0BmzQ/IMG-20260418-185448.jpg' },
+            { id: 21, grupo: 'Tamanho G', foto: 'https://i.ibb.co/wNm4bvnV/IMG-20260426-170801.jpg' },                 
             { id: 23, grupo: 'Tamanho G', foto: 'https://i.ibb.co/YBNcnf1V/IMG-20260327-210409.jpg' },
             { id: 25, grupo: 'Tamanho G', foto: 'https://i.ibb.co/203tt4m9/IMG-20260326-WA0020.jpg' },
             { id: 50, grupo: 'Refrigerantes', foto: 'https://i.ibb.co/7tMVsnPS/2301822-7894900027013-BEB-REFRIG-COCA-COLA-2-L-PET.jpg' },
@@ -163,8 +160,6 @@
                     listaExibicao = precosCloud.map(pCloud => {
                         const fixo = produtosFixos.find(f => f.id === pCloud.id);
                         const nome = pCloud.nome || "";
-                        
-                        // IDENTIFICA SE É BEBIDA PELO NOME OU ID
                         const ehBebida = nome.includes("2L") || nome.includes("Lata") || nome.includes("Coca") || nome.includes("Suco") || pCloud.id >= 100;
 
                         return {
@@ -243,16 +238,13 @@
             if(tt) tt.innerText = (taxaAtual === 0) ? "GRÁTIS" : `R$ ${taxaAtual.toFixed(2).replace('.',',')}`;
         }
 
-                        function validarBairroDinamico(texto) {
+        function validarBairroDinamico(texto) {
             if(!dadosGlobais) return;
-            // FUNÇÃO QUE MATA OS ACENTOS
             const normalizar = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
             const bairroDigitado = normalizar(texto);
             const alerta = document.getElementById('alerta-taxa');
             const btnEnviar = document.querySelector("#modalCarrinho button[onclick='enviarPedido()']");
             const taxasSalvas = dadosGlobais.taxas || [];
-            
-            // Busca o bairro ignorando acentos e maiúsculas
             const busca = taxasSalvas.find(t => normalizar(t.bairro) === bairroDigitado);
 
             if (busca) {
@@ -263,7 +255,6 @@
                 btnEnviar.className = "w-full bg-green-500 text-white py-4 rounded-xl font-black uppercase italic shadow-lg mb-4";
                 btnEnviar.innerText = "Enviar Pedido 🚀";
             } else if (texto.length > 4) { 
-                // SE DIGITOU MAIS DE 4 LETRAS E NÃO ACHOU NADA, BLOQUEIA! (Resolve o erro do Machados)
                 taxaAtual = 0;
                 alerta.innerText = "❌ BAIRRO NÃO ATENDIDO OU NÃO ENCONTRADO";
                 alerta.className = "block text-[10px] font-black uppercase italic p-2 rounded-lg bg-red-100 text-red-600 mt-2";
@@ -285,19 +276,14 @@
             const listaSugerida = document.getElementById('lista-sugestoes-bairro');
             const normalizar = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
             const termoBusca = normalizar(texto);
-
             listaSugerida.innerHTML = ""; 
-
             if (texto.length < 2) { 
                 listaSugerida.classList.add('hidden'); 
                 listaSugerida.style.display = 'none';
                 return; 
             }
-            
             const taxasSalvas = dadosGlobais.taxas || [];
-            // Aqui a mágica acontece: ele filtra comparando os nomes sem acento!
             const filtrados = taxasSalvas.filter(t => normalizar(t.bairro).includes(termoBusca));
-
             if (filtrados.length > 0) {
                 listaSugerida.innerHTML = filtrados.map(t => `<div class="p-3 border-b cursor-pointer hover:bg-blue-50" onclick="selecionarBairro('${t.bairro}')">${t.bairro}</div>`).join('');
                 listaSugerida.classList.remove('hidden');
@@ -308,28 +294,17 @@
             }
         }
 
-
-                   function selecionarBairro(nome) {
-            // 1. Preenche o campo de texto
+        function selecionarBairro(nome) {
             document.getElementById('end-bairro').value = nome;
-            
-            // 2. LIMPEZA TOTAL DA GAVETA
             const lista = document.getElementById('lista-sugestoes-bairro');
             lista.innerHTML = ""; 
-            
-            // FORÇA O FECHAMENTO (O segredo está aqui)
             setTimeout(() => {
                 lista.classList.add('hidden');
-                lista.style.display = 'none'; // Garante que suma visualmente
+                lista.style.display = 'none';
             }, 100);
-            
-            // 3. Atualiza os valores da Navega
             validarBairroDinamico(nome);
             atualizarRodape();
         }
-
-
-
 
         function enviarPedido() {
             const r = document.getElementById('end-rua').value;
@@ -338,14 +313,11 @@
             const obs = document.getElementById('obs-pedido').value;
             const pag = document.getElementById('pagamento').value;
             const trocoPara = parseFloat(document.getElementById('troco-para').value) || 0;
-
             if(!r || !b) return alert("Preencha o endereço!");
-            
             let res = ""; let sub = 0;
             for(let i in sacola) { res += `🔹 *${sacola[i].qtd}x ${sacola[i].nome}*\n`; sub += sacola[i].qtd * (parseFloat(sacola[i].preco) || 0); }
             const total = sub + taxaAtual;
             const zap = dadosGlobais?.config?.whatsapp || "5547992153920";
-
             let m = `🎯 *NOVO PEDIDO - NAVEGA PORÇÕES* 🎯\n\n${res}\n📍 *END:* ${r}\n🏡 *BAIRRO:* ${b}\n`;
             if(ref) m += `📍 *REF:* ${ref}\n`;
             if(obs) m += `📝 *OBS:* ${obs}\n`;
@@ -355,15 +327,20 @@
             }
             m += (taxaAtual === 0) ? `🛵 *ENTREGA: GRÁTIS*\n` : `🛵 *TAXA:* R$ ${taxaAtual.toFixed(2).replace('.',',')}\n`;
             m += `\n👑 *TOTAL: R$ ${total.toFixed(2).replace('.',',')}* 👑`;
-            
-            window.open(`https://wa.me/${zap}?text=${encodeURIComponent(m)}`);
+            window.location.href = `whatsapp://send?phone=${zap}&text=${encodeURIComponent(m)}`;
         }
 
-        function abrirDetalhes(n,d,f) {
+        // FUNÇÕES DE MODAL CORRIGIDAS
+        function abrirDetalhes(n, d, f) {
+            const modal = document.getElementById('meuModal');
             document.getElementById('m-titulo').innerText = n;
             document.getElementById('m-desc').innerText = d;
             document.getElementById('m-img').src = f;
-            document.getElementById('meuModal').style.display = 'flex';
+            modal.style.display = 'flex';
+        }
+
+        function fecharModal() { 
+            document.getElementById('meuModal').style.display = 'none'; 
         }
 
         function filtrar(c) {
@@ -373,27 +350,27 @@
             renderizarProdutos();
         }
 
-        function fecharModal() { document.getElementById('meuModal').style.display = 'none'; }
-        function fecharCarrinho() { document.getElementById('modalCarrinho').style.display = 'none'; }
         function abrirCarrinho() { 
             const l = document.getElementById('itens-sacola'); l.innerHTML = ""; let tem = false;
             for(let i in sacola) { tem = true; l.innerHTML += `<div class="p-2 bg-gray-50 border-b flex justify-between"><span>🔹 ${sacola[i].qtd}x ${sacola[i].nome}</span> <span>R$ ${(sacola[i].qtd * (parseFloat(sacola[i].preco) || 0)).toFixed(2)}</span></div>`; }
             if(!tem) return alert("Sacola vazia!");
             document.getElementById('modalCarrinho').style.display = 'flex'; 
         }
-        function verificarDinheiro(v) { document.getElementById('div-troco').classList.toggle('hidden', v !== 'Dinheiro'); }
+
+        function fecharCarrinho() { 
+            document.getElementById('modalCarrinho').style.display = 'none'; 
+        }
+
+        function verificarDinheiro(v) { 
+            document.getElementById('div-troco').classList.toggle('hidden', v !== 'Dinheiro'); 
+        }
 
         monitorarFirebase();
 
-    // --- CÓDIGO DO OLHO (CORRIGIDO) ---
-    // Não criamos o 'db' de novo, apenas usamos o que já existe
-    const visualizacaoRef = firebase.database().ref('online_agora/' + Math.floor(Math.random() * 1000000));
-    visualizacaoRef.set(true);
-    visualizacaoRef.onDisconnect().remove();
+        const visualizacaoRef = firebase.database().ref('online_agora/' + Math.floor(Math.random() * 1000000));
+        visualizacaoRef.set(true);
+        visualizacaoRef.onDisconnect().remove();
 
-</script>
-
-</script>
-
+    </script>
 </body>
 </html>
