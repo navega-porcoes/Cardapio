@@ -10,8 +10,28 @@
     <style>
         #meuModal, #modalCarrinho { display: none; }
         .img-produto { width: 75px; height: 75px; object-fit: cover; border-radius: 10px; background: #f3f4f6; border: 1px solid #e5e7eb; }
-        .header-navega { background-color: #1e40af; border-bottom: 4px solid #facc15; }
-        .logo-perfil { width: 85px; height: 85px; border: 3px solid #facc15; border-radius: 50%; background: white; margin: 0 auto 10px; display: block; object-fit: cover; }
+        
+        /* ALTERAÇÃO: CAPA DE FUNDO (REMOVIDO AZUL E FOTO DE PERFIL) */
+        .header-navega { 
+            background: url('https://i.ibb.co/27wk4fV7/1777476906606.png') center center / cover no-repeat; 
+            height: 180px; 
+            border-bottom: 4px solid #facc15;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 15px;
+            position: relative;
+        }
+
+        .header-navega::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+        }
+
+        .header-navega h1 { position: relative; z-index: 10; text-shadow: 2px 2px 4px rgba(0,0,0,0.9); }
+        
         .aba-ativa { border-bottom: 4px solid #facc15; color: #1e40af; background-color: #f8fafc; }
         .divisor-tamanho { background: #eff6ff; color: #1e40af; padding: 8px 15px; font-weight: 900; font-style: italic; text-transform: uppercase; font-size: 12px; border-left: 5px solid #facc15; margin-top: 15px; border-radius: 4px; }
         .loja-fechada { filter: grayscale(1); pointer-events: none; opacity: 0.6; }
@@ -20,8 +40,7 @@
 </head>
 <body class="bg-gray-50 pb-40 font-sans text-gray-900">
 
-    <header class="header-navega text-white p-6 text-center shadow-lg">
-        <img src="https://i.ibb.co/4ZmMtPGn/1000080038.png" class="logo-perfil shadow-md">
+    <header class="header-navega text-white shadow-lg">
         <h1 class="text-base font-black uppercase italic tracking-tighter text-white">🚀 NAVEGA PORÇÕES E PETISCARIA 🚀</h1>
         <div id="status-loja-badge"></div>
     </header>
@@ -139,8 +158,8 @@
             { id: 14, grupo: 'Tamanho M', foto: 'https://i.ibb.co/bjtSP7CC/IMG-20260418-211926.png' },
             { id: 15, grupo: 'Tamanho M', foto: 'https://i.ibb.co/GfbPFfZQ/IMG-20260418-201125.jpg' },
             { id: 20, grupo: 'Tamanho G', foto: 'https://i.ibb.co/sdF0BmzQ/IMG-20260418-185448.jpg' },
-            { id: 21, grupo: 'Tamanho G', foto: 'https://i.ibb.co/wNm4bvnV/IMG-20260426-170801.jpg' },                 
             { id: 23, grupo: 'Tamanho G', foto: 'https://i.ibb.co/YBNcnf1V/IMG-20260327-210409.jpg' },
+            { id: 24, grupo: 'Tamanho G', foto: 'https://i.ibb.co/mCbL3Xgz/IMG-20260501-170820.jpg' },
             { id: 25, grupo: 'Tamanho G', foto: 'https://i.ibb.co/203tt4m9/IMG-20260326-WA0020.jpg' },
             { id: 50, grupo: 'Refrigerantes', foto: 'https://i.ibb.co/7tMVsnPS/2301822-7894900027013-BEB-REFRIG-COCA-COLA-2-L-PET.jpg' },
             { id: 51, grupo: 'Refrigerantes', foto: 'https://i.ibb.co/B5qbSsBV/IMG-20260418-192121.jpg' },
@@ -327,10 +346,9 @@
             }
             m += (taxaAtual === 0) ? `🛵 *ENTREGA: GRÁTIS*\n` : `🛵 *TAXA:* R$ ${taxaAtual.toFixed(2).replace('.',',')}\n`;
             m += `\n👑 *TOTAL: R$ ${total.toFixed(2).replace('.',',')}* 👑`;
-            window.location.href = `whatsapp://send?phone=${zap}&text=${encodeURIComponent(m)}`;
+            window.location.href = `https://api.whatsapp.com/send?phone=${zap}&text=${encodeURIComponent(m)}`;
         }
 
-        // FUNÇÕES DE MODAL CORRIGIDAS
         function abrirDetalhes(n, d, f) {
             const modal = document.getElementById('meuModal');
             document.getElementById('m-titulo').innerText = n;
